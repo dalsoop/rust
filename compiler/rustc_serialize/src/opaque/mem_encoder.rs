@@ -77,6 +77,8 @@ macro_rules! write_leb128 {
 }
 
 impl Encoder for MemEncoder {
+    const DETERMINISTIC_HASH_MAP_ENCODE: bool = false;
+
     write_leb128!(emit_usize, usize, write_usize_leb128);
     write_leb128!(emit_u128, u128, write_u128_leb128);
     write_leb128!(emit_u64, u64, write_u64_leb128);
