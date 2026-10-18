@@ -14,7 +14,7 @@ use rustc_hir::definitions::DefPathHash;
 use rustc_index::IndexVec;
 use rustc_macros::{Decodable, Encodable};
 use rustc_serialize::opaque::{FileEncodeResult, FileEncoder, IntEncodedWithFixedSize, MemDecoder};
-use rustc_serialize::{Decodable, Decoder, Encodable, Encoder};
+use rustc_serialize::{ContextOrd, Decodable, Decoder, Encodable, Encoder};
 use rustc_session::Session;
 use rustc_span::hygiene::{
     ExpnId, HygieneDecodeContext, HygieneEncodeContext, SyntaxContext, SyntaxContextKey,
@@ -115,6 +115,14 @@ struct Footer {
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Encodable, Decodable)]
 struct SourceFileIndex(u32);
+
+impl<E> ContextOrd<E> for SourceFileIndex {
+    fn cmp_with_context(_context: E) -> impl FnMut(&Self, &Self) -> std::cmp::Ordering {
+        // this is never used by the on disk cache
+        assert!(false);
+        |a, b| a.0.cmp(&b.0)
+    }
+}
 
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Encodable, Decodable)]
 struct AbsoluteBytePos(u64);
@@ -951,6 +959,8 @@ macro_rules! encoder_methods {
 }
 
 impl<'tcx> Encoder for CacheEncoder<'tcx> {
+    const DETERMINISTIC_HASH_MAP_ENCODE: bool = false;
+
     encoder_methods! {
         emit_usize(usize);
         emit_u128(u128);

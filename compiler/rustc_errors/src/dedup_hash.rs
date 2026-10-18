@@ -27,6 +27,8 @@ macro_rules! encoder_methods {
 }
 
 impl Encoder for DedupHashEncoder {
+    const DETERMINISTIC_HASH_MAP_ENCODE: bool = false;
+
     encoder_methods! {
         emit_usize(usize);
         emit_u128(u128);

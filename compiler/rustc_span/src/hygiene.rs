@@ -39,7 +39,7 @@ use rustc_data_structures::unhash::UnhashMap;
 use rustc_hashes::Hash64;
 use rustc_index::IndexVec;
 use rustc_macros::{Decodable, Encodable, StableHash};
-use rustc_serialize::{Decodable, Decoder, Encodable};
+use rustc_serialize::{ContextOrd, Decodable, Decoder, Encodable};
 use tracing::{debug, trace};
 
 use crate::def_id::{CRATE_DEF_ID, CrateNum, DefId, LOCAL_CRATE, ModId, StableCrateId};
@@ -130,8 +130,16 @@ impl !Ord for LocalExpnId {}
 impl !PartialOrd for LocalExpnId {}
 
 /// A unique hash value associated to an expansion.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Encodable, Decodable, StableHash)]
+#[derive(
+    Clone, Copy, PartialEq, Eq, Hash, Debug, Encodable, Decodable, StableHash, PartialOrd, Ord
+)]
 pub struct ExpnHash(Fingerprint);
+
+impl<E> ContextOrd<E> for ExpnHash {
+    fn cmp_with_context(_context: E) -> impl FnMut(&Self, &Self) -> std::cmp::Ordering {
+        <Self as Ord>::cmp
+    }
+}
 
 impl ExpnHash {
     /// Returns the [StableCrateId] identifying the crate this [ExpnHash]
