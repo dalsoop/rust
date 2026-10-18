@@ -488,10 +488,15 @@ impl char {
             '\0' => EscapeDebug::backslash(ascii::Char::Digit0),
 
             // ASCII fast path,
-            // plus U+FF9E HALFWIDTH KATAKANA VOICED SOUND MARK
-            // and U+FF9F HALFWIDTH KATAKANA SEMI-VOICED SOUND MARK
-            // which should not be escaped despite being grapheme extenders.
-            '\x20'..='\x7E' | '\u{FF9E}' | '\u{FF9F}' => EscapeDebug::printable(self),
+            // plus U+FF9E HALFWIDTH KATAKANA VOICED SOUND MARK,
+            // U+FF9F HALFWIDTH KATAKANA SEMI-VOICED SOUND MARK,
+            // U+302E HANGUL SINGLE DOT TONE MARK
+            // and U+302F HANGUL DOUBLE DOT TONE MARK,
+            // which are spacing marks that should not be escaped
+            // despite being grapheme extenders.
+            '\x20'..='\x7E' | '\u{FF9E}' | '\u{FF9F}' | '\u{302E}' | '\u{302F}' => {
+                EscapeDebug::printable(self)
+            }
 
             _ if self.is_control()
                 || self.is_private_use()

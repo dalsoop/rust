@@ -301,6 +301,8 @@ fn test_escape_debug() {
     assert_eq!(string('\u{100000}'), "\\u{100000}"); // private use 2
     assert_eq!(string('\u{ff9e}'), "\u{ff9e}"); // halfwidth dakuten
     assert_eq!(string('\u{ff9f}'), "\u{ff9f}"); // halfwidth handakuten
+    assert_eq!(string('\u{302e}'), "\u{302e}"); // Hangul single dot tone mark
+    assert_eq!(string('\u{302f}'), "\u{302f}"); // Hangul double dot tone mark
 }
 
 #[test]
