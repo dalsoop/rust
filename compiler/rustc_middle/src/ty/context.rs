@@ -1144,6 +1144,25 @@ impl<'tcx> TyCtxt<'tcx> {
         }
     }
 
+    /// Useful when one needs to access a lot of `DefPathHash`-es in quick succession. Stable
+    /// sorting a collection for example.
+    ///
+    /// Read locks the structures containing the `DefPathHash` mappings, allowing us to skip lots of
+    /// locking and releasing using `[Self::def_path_hash]` would do
+    pub fn prelocked_def_path_hashes(
+        self,
+    ) -> impl Fn(DefId) -> rustc_hir::definitions::DefPathHash {
+        let definitions = self.definitions_untracked();
+        let cstore = self.cstore_untracked();
+        move |def_id| {
+            if let Some(def_id) = def_id.as_local() {
+                definitions.def_path_hash(def_id)
+            } else {
+                cstore.def_path_hash(def_id)
+            }
+        }
+    }
+
     #[inline]
     pub fn crate_types(self) -> &'tcx [CrateType] {
         &self.crate_types
